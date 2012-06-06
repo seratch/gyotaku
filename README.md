@@ -16,6 +16,8 @@ A tool to save web pages.
 
 Download gyotaku.zip and unzip it.
 
+https://github.com/seratch/gyotaku/downloads
+
 ### Prepare config json
 
 ```sh
