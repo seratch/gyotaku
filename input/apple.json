@@ -1,0 +1,9 @@
+{
+  "name": "apple",
+  "url": "http://www.apple.com/",
+  "charset": "UTF-8",
+  "prettify": false,
+  "replaceNoDomainOnly": true,
+  "debug": false
+}
+
