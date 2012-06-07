@@ -16,6 +16,7 @@ object AppBuild extends Build {
       "com.twitter" %% "util-eval" % "4.0.1",
       "commons-io" % "commons-io" % "2.3",
       "net.liftweb" %% "lift-json" % "2.4",
+       "org.yaml" % "snakeyaml" % "1.10",
       "net.sourceforge.htmlcleaner" % "htmlcleaner" % "2.2",
       "org.seleniumhq.selenium" % "selenium-firefox-driver" % "2.22.0",
       "org.scalatest" %% "scalatest" % "1.7.2" % "test"

@@ -4,7 +4,6 @@ import java.io._
 import scala.collection.JavaConverters._
 import scala.util.control.Exception._
 
-import net.liftweb.json._
 import com.twitter.util.Eval
 
 import org.apache.commons.io.FileUtils
@@ -26,19 +25,57 @@ object Main {
 
     // scan directory
     val pathToFindInput = new File(input)
-    val jsonFiles: Seq[File] = {
+    val configs: Seq[Config] = {
       if (!pathToFindInput.isDirectory && input.endsWith("json")) Seq(pathToFindInput)
       else FileUtils.listFiles(new File(input), Array("json"), true).asScala.toSeq
-    }
-    jsonFiles.foreach {
-      jsonFile =>
-
-        // load json with lift-json
-        val json: String = using(new FileInputStream(jsonFile)) {
+    }.map { jsonFile =>
+      // --- JSON ---
+      import _root_.net.liftweb.json._
+      val json: String = using(new FileInputStream(jsonFile)) {
+        stream => new String(readAsByteArray(stream), "UTF-8")
+      }
+      // load json with lift-json
+      implicit val formats = DefaultFormats
+      parse(json).extract[Config]
+    }.union {
+      {
+        if (!pathToFindInput.isDirectory && input.endsWith("yml")) Seq(pathToFindInput)
+        else FileUtils.listFiles(new File(input), Array("yml"), true).asScala.toSeq
+      }.map { yamlFile =>
+        // --- YAML ---
+        val yaml: String = using(new FileInputStream(yamlFile)) {
           stream => new String(readAsByteArray(stream), "UTF-8")
         }
-        implicit val formats = DefaultFormats
-        val config = parse(json).extract[JSONConfig]
+        import org.yaml.snakeyaml.Yaml
+        type juMap[K, V] = java.util.Map[K, V]
+        val c = new Yaml().load(yaml).asInstanceOf[juMap[String, Any]]
+        val driver = Option(c.get("driver").asInstanceOf[juMap[String, String]])
+          .getOrElse(new java.util.HashMap[String, String])
+        def opt[A](v: A): Option[A] = Option(v)
+        def str(v: Any): String = v match {
+          case null => null
+          case v => v.toString
+        }
+        def bool(v: Any, default: Boolean): Boolean = v match {
+          case null => default
+          case _ => java.lang.Boolean.parseBoolean(v.toString)
+        }
+        Config(
+          name = c.get("name").toString,
+          url = c.get("url").toString,
+          charset = opt(str(c.get("charset"))),
+          driver = opt(WebDriverInConfig(
+            path = opt(driver.get("path")),
+            source = opt(driver.get("source"))
+          )),
+          prettify = opt(bool(c.get("prettify"), false)),
+          replaceNoDomainOnly = opt(bool(c.get("replaceNoDomainOnly"), true)),
+          debug = opt(bool(c.get("debug"), false))
+        )
+      }
+    }
+    configs.foreach {
+      config =>
         val defaultDriverSourceCode = "new org.openqa.selenium.firefox.FirefoxDriver"
         val target = GyotakuTarget(
           name = config.name,
@@ -380,15 +417,15 @@ case class Downloader(target: GyotakuTarget, output: String, currentUrl: String)
   }
 }
 
-case class WebDriverInJSONConfig(
+case class WebDriverInConfig(
   path: Option[String],
   source: Option[String])
 
-case class JSONConfig(
+case class Config(
   name: String,
   url: String,
   charset: Option[String],
-  driver: Option[WebDriverInJSONConfig],
+  driver: Option[WebDriverInConfig],
   prettify: Option[Boolean],
   replaceNoDomainOnly: Option[Boolean],
   debug: Option[Boolean])

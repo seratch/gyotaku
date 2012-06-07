@@ -15,13 +15,11 @@ SCALA_VERSION=2.9.1
 cp -p target/scala-${SCALA_VERSION}/gyotaku_${SCALA_VERSION}-*.min.jar dist/gyotaku.jar
 
 mkdir dist/input
-echo "{
-  \"name\": \"www.apple.com\",
-  \"url\": \"http://www.apple.com/\",
-  \"charset\": \"UTF-8\",
-  \"replaceNoDomainOnly\": false
-}
-" > dist/input/apple.json
+echo "name: www.apple.com
+url: http://www.apple.com
+charset: UTF-8
+replaceNoDomainOnly: false
+" > dist/input/apple.yaml
 
 echo "#!/bin/sh
 cd \`dirname \$0\`

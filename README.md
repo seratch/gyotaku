@@ -25,12 +25,14 @@ mkdir input
 vim input/example.json
 ```
 
-Create a JSON config file:
+Create a yaml config file:
 
-```json
-{ "name": "example",
-  "url": "http://example.com/" }
+```yml
+name: example
+url: http://example.com/
 ```
+
+JSON format is also supported.
 
 ### Run gyotaku
 
@@ -62,18 +64,19 @@ driver.findElement(By.id("signup_form")).submit()
 driver
 ```
 
-### input/tumblr.json
+### input/tumblr.yml
 
-```json
-{ "name": "tumblr-dashbord",
-  "url": "http://www.tumblr.com/dashboard",
-  "driver": { "path": "input/tumblr-login.scala" } }
+```yml
+name: tumblr-dashbord
+url: http://www.tumblr.com/dashboard
+driver: 
+  path: input/tumblr-login.scala
 ```
 
 ### run gyotaku
 
 ```sh
-./gyotaku input/tumblr.json output
+./gyotaku input/tumblr.yml output
 ```
 
 ## Configuration
@@ -92,14 +95,21 @@ How to create a `org.openqa.selenium.WebDriver` instance.
 
 `FirefoxDriver` will be used if it's omitted.
 
-```json
-"driver" { "path": "path/to/driver.scala" }
+```yml
+driver
+  path: path/to/driver.scala
 ```
 
 or
 
 ```json
-"driver" { "source": "new org.openqa.selenium.firefix.FirefoxDriver" }
+"driver" { 
+  "source": "import org.openqa.selenium._
+   val drvier = new firefix.FirefoxDriver
+   // do something
+   driver
+  " 
+}
 ```
 
 ### charset
@@ -120,5 +130,4 @@ Replace urls in html/css only when they don't start with 'http://' or 'https://'
 
 `true` if it's omitted.
  
-
 
