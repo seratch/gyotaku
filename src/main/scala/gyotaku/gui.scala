@@ -2,24 +2,27 @@ package gyotaku
 
 import swing._
 import swing.event._
-import java.awt.Insets
 import swing.GridBagPanel.Fill
 import org.yaml.snakeyaml.Yaml
+import java.awt.{Color, Insets}
 
 object SwingApplication extends SimpleSwingApplication {
 
   import Utils._
 
-  val windowName = "gyotaku - 魚拓"
+  val windowName = "Gyotaku - 魚拓"
 
   lazy val ui = new GridBagPanel {
+
+    opaque = true
+    background = Color.WHITE
 
     val c = new Constraints
 
     def initialize(): Unit = {
       val shouldFill = true
       if (shouldFill) c.fill = Fill.Horizontal
-      c.insets = new Insets(2, 2, 2, 2)
+      c.insets = new Insets(5, 5, 5, 5)
     }
 
     def movePosition(weightx: Double, weighty: Double, gridx: Int, gridy: Int): Unit = {
@@ -28,6 +31,9 @@ object SwingApplication extends SimpleSwingApplication {
       c.gridx = gridx
       c.gridy = gridy
     }
+
+    def moveToLabelPosition(gridy: Int) = movePosition(0,0,0, gridy)
+    def moveToInputPosition(gridy: Int) = movePosition(1.0,0,1, gridy)
 
     initialize()
 
@@ -44,6 +50,8 @@ object SwingApplication extends SimpleSwingApplication {
               urlInput.text = c.url
               charsetInput.text = c.charset.getOrElse("UTF-8")
               driverPathInput.text = c.driver.map(d => d.path.getOrElse(null)).getOrElse(null)
+              prettifyHtmlInput.selected = c.prettify.getOrElse(false)
+              replaceNoDomainOnlyInput.selected = c.replaceNoDomainOnly.getOrElse(false)
           }
         case _ =>
       }
@@ -53,39 +61,51 @@ object SwingApplication extends SimpleSwingApplication {
       InputsSelectionListener.listenTo(selection)
     }
 
-    movePosition(0, 0, 0, 0)
-    layout(new Label("Saved files")) = c
+    moveToLabelPosition(0)
+    layout(new Label("Load")) = c
     movePosition(0, 0, 1, 0)
     layout(savedFilesComboBox) = c
 
     val nameInput = new TextField
-    movePosition(0, 0, 0, 1)
+    moveToLabelPosition(1)
     layout(new Label("Name")) = c
-    movePosition(1.0, 0, 1, 1)
+    moveToInputPosition(1)
     layout(nameInput) = c
 
     val urlInput = new TextField
-    movePosition(0, 0, 0, 2)
+    moveToLabelPosition(2)
     layout(new Label("URL")) = c
-    movePosition(1.0, 0, 1, 2)
+    moveToInputPosition(2)
     layout(urlInput) = c
 
     val charsetInput = new TextField
-    movePosition(0, 0, 0, 3)
+    moveToLabelPosition(3)
     layout(new Label("Charset")) = c
-    movePosition(1.0, 0, 1, 3)
+    moveToInputPosition(3)
     layout(charsetInput) = c
 
     val driverPathInput = new TextField
-    movePosition(0, 0, 0, 4)
+    moveToLabelPosition(4)
     layout(new Label("Web Driver")) = c
-    movePosition(1.0, 0, 1, 4)
+    moveToInputPosition(4)
     layout(driverPathInput) = c
 
+    val prettifyHtmlInput = new CheckBox("Prettify HTML")
+    moveToLabelPosition(5)
+    layout(new Label("Formatting")) = c
+    moveToInputPosition(5)
+    layout(prettifyHtmlInput) = c
+
+    val replaceNoDomainOnlyInput = new CheckBox("Replace absolute/relative path only")
+    moveToLabelPosition(6)
+    layout(new Label("Replacement")) = c
+    moveToInputPosition(6)
+    layout(replaceNoDomainOnlyInput) = c
+
     val outputDirInput = new TextField("output")
-    movePosition(0, 0, 0, 5)
-    layout(new Label("Output directory")) = c
-    movePosition(1.0, 0, 1, 5)
+    moveToLabelPosition(7)
+    layout(new Label("Output")) = c
+    moveToInputPosition(7)
     layout(outputDirInput) = c
 
     val saveButton = new Button("Save") {
@@ -106,16 +126,17 @@ object SwingApplication extends SimpleSwingApplication {
                 driver.put("path", path)
                 d.put("driver", driver)
             }
+            d.put("prettify", prettifyHtmlInput.selected)
+            d.put("replaceNoDomainOnly", replaceNoDomainOnlyInput.selected)
             val filename = "input/" + d.get("name") + ".yml"
             writeFile(filename, new Yaml().dump(d).getBytes)
-            Dialog.showMessage(title = windowName, message = "Done.")
           } catch {
             case e =>
-              Dialog.showMessage(title = windowName, message = "Failed to execute! (" + e.getMessage + ")")
+              Dialog.showMessage(title = windowName, message = "Failed to save (" + e.getMessage + ")")
           }
       }
     }
-    movePosition(0, 0, 0, 6)
+    moveToLabelPosition(8)
     layout(saveButton) = c
 
     val executeButton = new Button("Execute") {
@@ -134,22 +155,23 @@ object SwingApplication extends SimpleSwingApplication {
                 }),
                 source = None
               )),
-              prettify = Option(false),
-              replaceNoDomainOnly = Option(false),
+              prettify = Option(prettifyHtmlInput.selected),
+              replaceNoDomainOnly = Option(replaceNoDomainOnlyInput.selected),
               debug = Option(false)
             )
             val answer = Dialog.showConfirmation(title = windowName, message = "Are you right to execute?")
             if (answer == Dialog.Result.Ok) {
               Executor.execute(config, outputDirInput.text)
-              Dialog.showMessage(title = windowName, message = "Done.")
+              Dialog.showMessage(title = windowName,
+                message = "Done. Check " + outputDirInput.text  + "/" + nameInput.text + ".")
             }
           } catch {
             case e =>
-              Dialog.showMessage(title = windowName, message = "Failed to execute! (" + e.getMessage + ")")
+              Dialog.showMessage(title = windowName, message = "Failed to execute (" + e.getMessage + ")")
           }
       }
     }
-    movePosition(1.0, 0, 1, 6)
+    moveToInputPosition(8)
     layout(executeButton) = c
 
   }
