@@ -1,8 +1,8 @@
-# gyotaku
+# Gyotaku - 魚拓（ぎょたく）
 
 ## What's this?
 
-A tool to save web pages.
+Gyotaku is a simple tool to completely save web pages.
 
 ## Requirement
 
@@ -12,41 +12,25 @@ A tool to save web pages.
 
 ## Basic Usage
 
-### Get gyotaku
+### Get Gyotaku
 
 Download gyotaku.zip and unzip it.
 
 https://github.com/seratch/gyotaku/downloads
 
-### Prepare config json
 
-```sh
-mkdir input
-vim input/example.json
+## Invoke Gyotaku
+
+Using Gyotaku UI (Swing Application) is the easiest way.
+
 ```
+./gyotaku_ui
+````
 
-Create a yaml config file:
-
-```yml
-name: example
-url: http://example.com/
-```
-
-JSON format is also supported.
-
-### Run gyotaku
-
-```sh
-$ ./gyotaku input/example.json output
-Target: http://www.example.com/
-Now downloading..................Finished.
-$
-```
-
-The content will be stored in `./output`.
+TODO: Screen shot
 
 
-## How to download pages that require authentication
+## Authentication
 
 If you want to get a page which requires authentication, use the selenium web driver which is customized by yourself.
 
@@ -69,15 +53,9 @@ driver
 ```yml
 name: tumblr-dashbord
 url: http://www.tumblr.com/dashboard
-driver: 
-  path: input/tumblr-login.scala
+driver: { path: input/tumblr-login.scala }
 ```
 
-### run gyotaku
-
-```sh
-./gyotaku input/tumblr.yml output
-```
 
 ## Configuration
 
