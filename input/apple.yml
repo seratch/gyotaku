@@ -1,8 +1,7 @@
 name: apple
 url: http://www.apple.com/
 #charset: UTF-8
-#driver: 
-#  source: new org.openqa.selenium.firefox.FirefoxDriver
+#driver: { source: new org.openqa.selenium.firefox.FirefoxDriver }
 #prettify: false
 #replaceNoDomainOnly: true
 #debug: false
