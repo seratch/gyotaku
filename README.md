@@ -27,7 +27,7 @@ Using Gyotaku UI (Swing Application) is the easiest way.
 ./gyotaku_ui
 ````
 
-TODO: Screen shot
+![screen_shot](https://github.com/seratch/gyotaku/raw/master/img/gyotaku_screen_shot.png)
 
 
 ## Authentication

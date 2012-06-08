@@ -4,7 +4,8 @@ import swing._
 import swing.event._
 import swing.GridBagPanel.Fill
 import org.yaml.snakeyaml.Yaml
-import java.awt.{Color, Insets}
+import java.awt.{ Color, Insets }
+import com.sun.java.swing.plaf.windows.WindowsIconFactory
 
 object SwingApplication extends SimpleSwingApplication {
 
@@ -32,8 +33,9 @@ object SwingApplication extends SimpleSwingApplication {
       c.gridy = gridy
     }
 
-    def moveToLabelPosition(gridy: Int) = movePosition(0,0,0, gridy)
-    def moveToInputPosition(gridy: Int) = movePosition(1.0,0,1, gridy)
+    def moveToLabelPosition(gridy: Int) = movePosition(0, 0, 0, gridy)
+
+    def moveToInputPosition(gridy: Int) = movePosition(1.0, 0, 1, gridy)
 
     initialize()
 
@@ -132,7 +134,10 @@ object SwingApplication extends SimpleSwingApplication {
             writeFile(filename, new Yaml().dump(d).getBytes)
           } catch {
             case e =>
-              Dialog.showMessage(title = windowName, message = "Failed to save (" + e.getMessage + ")")
+              Dialog.showMessage(
+                title = windowName,
+                message = "Failed to save (" + e.getMessage + ")",
+                icon = WindowsIconFactory.createFrameIconifyIcon())
           }
       }
     }
@@ -159,15 +164,23 @@ object SwingApplication extends SimpleSwingApplication {
               replaceNoDomainOnly = Option(replaceNoDomainOnlyInput.selected),
               debug = Option(false)
             )
-            val answer = Dialog.showConfirmation(title = windowName, message = "Are you right to execute?")
+            val answer = Dialog.showConfirmation(
+              title = windowName,
+              message = "Are you ready to execute?",
+              icon = WindowsIconFactory.createFrameIconifyIcon())
             if (answer == Dialog.Result.Ok) {
               Executor.execute(config, outputDirInput.text)
-              Dialog.showMessage(title = windowName,
-                message = "Done. Check " + outputDirInput.text  + "/" + nameInput.text + ".")
+              Dialog.showMessage(
+                title = windowName,
+                message = "Done. Check " + outputDirInput.text + "/" + nameInput.text + ".",
+                icon = WindowsIconFactory.createFrameIconifyIcon())
             }
           } catch {
             case e =>
-              Dialog.showMessage(title = windowName, message = "Failed to execute (" + e.getMessage + ")")
+              Dialog.showMessage(
+                title = windowName,
+                message = "Failed to execute (" + e.getMessage + ")",
+                icon = WindowsIconFactory.createFrameIconifyIcon())
           }
       }
     }
