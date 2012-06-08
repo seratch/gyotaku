@@ -10,7 +10,7 @@ Gyotaku is a simple tool to completely save web pages.
 - Java Runtime Environment
 - Firefox
 
-## Basic Usage
+## Usage
 
 ### Get Gyotaku
 
@@ -19,7 +19,7 @@ Download gyotaku.zip and unzip it.
 https://github.com/seratch/gyotaku/downloads
 
 
-## Invoke Gyotaku
+### Invoke Gyotaku
 
 Using Gyotaku UI (Swing Application) is the easiest way.
 
@@ -30,11 +30,11 @@ Using Gyotaku UI (Swing Application) is the easiest way.
 ![screen_shot](https://github.com/seratch/gyotaku/raw/master/img/gyotaku_screen_shot.png)
 
 
-## Authentication
+### Authentication
 
 If you want to get a page which requires authentication, use the selenium web driver which is customized by yourself.
 
-### input/tumblr-login.scala
+#### input/tumblr-login.scala
 
 Added the following source code:
 
@@ -48,7 +48,7 @@ driver.findElement(By.id("signup_form")).submit()
 driver
 ```
 
-### input/tumblr.yml
+#### input/tumblr.yml
 
 ```yml
 name: tumblr-dashbord
