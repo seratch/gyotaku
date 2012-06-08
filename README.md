@@ -59,6 +59,15 @@ driver: { path: input/tumblr-login.scala }
 
 ## Configuration
 
+```yml
+name: example
+url: http://www.example.com/
+driver: input/login_operation.scala
+charset: UTF-8
+prettify: false
+replaceNoDomainOnly: false
+```
+
 ### name
 
 The name of gyotaku. It'll be used as directory name under output directory.
