@@ -7,7 +7,6 @@ proguardOptions ++= Seq (
 )
 
 initialCommands := """|import gyotaku._
-                      |import gyotaku.Main._
                       |import org.htmlcleaner._
                       |import org.openqa.selenium._
                       |""".stripMargin

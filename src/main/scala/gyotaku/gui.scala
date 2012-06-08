@@ -64,7 +64,7 @@ object SwingApplication extends SimpleSwingApplication {
     }
 
     moveToLabelPosition(0)
-    layout(new Label("Load")) = c
+    layout(new Label("Load file")) = c
     movePosition(0, 0, 1, 0)
     layout(savedFilesComboBox) = c
 
@@ -88,13 +88,13 @@ object SwingApplication extends SimpleSwingApplication {
 
     val driverPathInput = new TextField
     moveToLabelPosition(4)
-    layout(new Label("Web Driver")) = c
+    layout(new Label("Driver")) = c
     moveToInputPosition(4)
     layout(driverPathInput) = c
 
     val prettifyHtmlInput = new CheckBox("Prettify HTML")
     moveToLabelPosition(5)
-    layout(new Label("Formatting")) = c
+    layout(new Label("Formatter")) = c
     moveToInputPosition(5)
     layout(prettifyHtmlInput) = c
 
