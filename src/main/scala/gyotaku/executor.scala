@@ -66,13 +66,15 @@ object Executor {
       // download resources (from src/href attributes)
 
       target.driver.findElements(By.tagName("img")).asScala.par
+        .filter(_ != null)
         .map(e => ignore(removeQueryString(e.getAttribute("src"))))
         .filter(src => isNotEmpty(src))
         .distinct
         .foreach(src => executor.download(src))
 
       target.driver.findElements(By.tagName("input")).asScala.par
-        .filter(_.getAttribute("type") == "image")
+        .filter(_ != null)
+        .filter(e => ignore(e.getAttribute("type") == "image"))
         .map(e => ignore(removeQueryString(e.getAttribute("src"))))
         .filter(src => isNotEmpty(src))
         .distinct
@@ -80,7 +82,7 @@ object Executor {
 
       target.driver.findElements(By.tagName("link")).asScala.par
         .filter(_ != null)
-        .filter(_.getAttribute("type") == "text/css")
+        .filter(e => ignore(e.getAttribute("type") == "text/css"))
         .map(e => ignore(removeQueryString(e.getAttribute("href"))))
         .filter(src => isNotEmpty(src))
         .distinct
@@ -110,6 +112,17 @@ object Executor {
         currentUrl.replaceFirst("(https?)://", "$1__").split("/").head
       mkdir(sameDomainDir)
       FileUtils.copyDirectory(new File(sameDomainDir), new File(outputBaseDir + "/__local__"))
+
+      FileUtils.listFiles(new File(outputBaseDir + "/__local__"), Array("css"), true).asScala.foreach { file =>
+        // Need to replace the relative path. The reason is...
+        // the original file is located at __local__/http__www.example.com/css/style.css
+        // but this one will be located at __local__/css/style.css
+        val updated = FileUtils.readFileToString(file)
+          .replaceAll("""url\('\.\./""", "url('")
+          .replaceAll("""url\("\.\./""", "url(\"")
+          .replaceAll("""url\(\.\./""", "url(")
+        FileUtils.write(file, updated)
+      }
 
       val pathFromLocalRoot = "__local__/" + replaceHttp(dirname(currentUrl)).split("/").tail.mkString("/")
 
