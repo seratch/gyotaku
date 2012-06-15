@@ -7,6 +7,7 @@ import com.twitter.util.Eval
 
 import org.apache.commons.io.FileUtils
 import org.openqa.selenium._
+
 import org.htmlcleaner.{ PrettyHtmlSerializer, CleanerProperties, HtmlCleaner }
 
 case class GyotakuTarget(
@@ -27,17 +28,16 @@ object Executor {
     val target = GyotakuTarget(
       name = config.name,
       driver = {
-        val e = new Eval(None)
-        config.driver map {
+        val eval = new Eval(None)
+        config.driver.map {
           d =>
             d.path.map {
-              path =>
-                e.apply[WebDriver](new File(path))
+              path => eval.apply[WebDriver](new File(path))
             }.getOrElse {
-              e.apply[WebDriver](d.source.getOrElse(defaultDriverSourceCode))
+              eval.apply[WebDriver](d.source.getOrElse(defaultDriverSourceCode))
             }
-        } getOrElse {
-          e.apply[WebDriver](defaultDriverSourceCode)
+        }.getOrElse {
+          eval.apply[WebDriver](defaultDriverSourceCode)
         }
       },
       charset = config.charset.getOrElse("UTF-8"),
@@ -170,7 +170,10 @@ case class Executor(target: GyotakuTarget, output: String, currentUrl: String) {
     print(".")
     val normalizedPath = normalizeUrl(src)
     try {
-      using(new java.net.URL(normalizedPath).openStream()) {
+      val url = new java.net.URL(normalizedPath)
+      val conn = url.openConnection()
+      conn.setReadTimeout(10000)
+      using(conn.getInputStream) {
         stream =>
           val path = outputBaseDir + "/" + replaceHttpToLocal(normalizedPath)
           prepareDir(path)
@@ -189,7 +192,10 @@ case class Executor(target: GyotakuTarget, output: String, currentUrl: String) {
     print(".")
     val normalizedPath = normalizeUrl(src)
     try {
-      using(new java.net.URL(normalizedPath).openStream()) {
+      val url = new java.net.URL(normalizedPath)
+      val conn = url.openConnection()
+      conn.setReadTimeout(10000)
+      using(conn.getInputStream) {
         stream =>
           val bytes = readAsByteArray(stream)
 
