@@ -87,18 +87,6 @@ driver
   path: path/to/driver.scala
 ```
 
-or
-
-```json
-"driver" { 
-  "source": "import org.openqa.selenium._
-   val drvier = new firefix.FirefoxDriver
-   // do something
-   driver
-  " 
-}
-```
-
 ### charset
 
 Charset which is used for the downloaded html and modified css files. 

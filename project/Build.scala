@@ -16,7 +16,6 @@ object AppBuild extends Build {
       "org.scala-lang" % "scala-swing" % "2.9.1",
       "com.twitter" %% "util-eval" % "4.0.1",
       "commons-io" % "commons-io" % "2.3",
-      "net.liftweb" %% "lift-json" % "2.4",
       "org.yaml" % "snakeyaml" % "1.10",
       "net.sourceforge.htmlcleaner" % "htmlcleaner" % "2.2",
       "org.seleniumhq.selenium" % "selenium-firefox-driver" % "2.22.0",
