@@ -90,7 +90,7 @@ object Executor {
 
       target.driver.findElements(By.tagName("script")).asScala.par
         .filter(_ != null)
-        .map(e => removeQueryString(e.getAttribute("src")))
+        .map(e => ignore(removeQueryString(e.getAttribute("src"))))
         .filter(src => isNotEmpty(src))
         .distinct
         .foreach(src => executor.download(src))
@@ -116,7 +116,12 @@ object Executor {
         new File(outputBaseDir + "/__local__"),
         new FileFilter {
           def accept(f: File): Boolean = {
-            !new File(f.getAbsolutePath.replaceFirst(sameDomainDir, outputBaseDir + "/__local__")).exists()
+            if (f.getPath.endsWith(".css")) {
+              val toPath = f.getAbsolutePath.replaceFirst(sameDomainDir, outputBaseDir + "/__local__")
+              !new File(toPath).exists()
+            } else {
+              true
+            }
           }
         },
         true
