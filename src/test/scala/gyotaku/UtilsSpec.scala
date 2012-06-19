@@ -59,6 +59,18 @@ class UtilsSpec extends FlatSpec with ShouldMatchers {
         replaceNoDomainOnly = true)
       result should equal("<link href=\"__local__/favicon.ico\" rel=\"example.com icon\" />")
     }
+    {
+      val css = "<link rel=\"stylesheet\" href=\"https://s.example.com/css/style.css\" type=\"text/css\">" +
+        "<link href=\"https://www.example.com/\" rel=\"canonical\">"
+      import Utils._
+      val result = replaceCssPath(
+        src = css,
+        pathFromLocalRoot = "__local__",
+        replaceNoDomainOnly = false
+      )
+      result should equal("<link rel=\"stylesheet\" href=\"__local__/https__s.example.com/css/style.css\" type=\"text/css\">" +
+        "<link href=\"__local__/https__www.example.com/\" rel=\"canonical\">")
+    }
   }
 
 }

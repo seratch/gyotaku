@@ -106,7 +106,7 @@ object Utils {
     if (replaceNoDomainOnly) {
       modified
     } else {
-      modified.replaceAll("""<link[^>]*?\s+href=(['"])(https?)://""", """<link href=$1__local__/$2__""")
+      modified.replaceAll("""<link([^>]*?\s+)href=(['"])(https?)://""", """<link$1href=$2__local__/$3__""")
     }
   }
 
