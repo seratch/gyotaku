@@ -23,6 +23,8 @@ object Utils {
 
   def replaceHttpToLocal(s: String) = s.replaceFirst("(https?)://", "__local__/$1__")
 
+  def trimHttp(s: String) = s.replaceFirst("(https?)://[^/]+/", "/")
+
   def domainOnly(s: String) = s.replaceFirst("https?://", "").split("/").head
 
   def dirname(s: String) = s.split("/").init.mkString("/")

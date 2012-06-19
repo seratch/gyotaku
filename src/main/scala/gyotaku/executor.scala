@@ -107,22 +107,20 @@ object Executor {
       executor.downloadUrlInCss(domainOnly(currentUrl), dirname(currentUrl), originalHtml)
 
       // copy all the resources on the same domain
-
       val sameDomainDir = outputBaseDir + "/__local__/" +
         currentUrl.replaceFirst("(https?)://", "$1__").split("/").head
       mkdir(sameDomainDir)
-      FileUtils.copyDirectory(new File(sameDomainDir), new File(outputBaseDir + "/__local__"))
-
-      FileUtils.listFiles(new File(outputBaseDir + "/__local__"), Array("css"), true).asScala.foreach { file =>
-        // Need to replace the relative path. The reason is...
-        // the original file is located at __local__/http__www.example.com/css/style.css
-        // but this one will be located at __local__/css/style.css
-        val updated = FileUtils.readFileToString(file)
-          .replaceAll("""url\('\.\./""", "url('")
-          .replaceAll("""url\("\.\./""", "url(\"")
-          .replaceAll("""url\(\.\./""", "url(")
-        FileUtils.write(file, updated)
-      }
+      // Never overwrite already existing files
+      FileUtils.copyDirectory(
+        new File(sameDomainDir),
+        new File(outputBaseDir + "/__local__"),
+        new FileFilter {
+          def accept(f: File): Boolean = {
+            !new File(f.getAbsolutePath.replaceFirst(sameDomainDir, outputBaseDir + "/__local__")).exists()
+          }
+        },
+        true
+      )
 
       val pathFromLocalRoot = "__local__/" + replaceHttp(dirname(currentUrl)).split("/").tail.mkString("/")
 
@@ -212,21 +210,53 @@ case class Executor(target: GyotakuTarget, output: String, currentUrl: String) {
         stream =>
           val bytes = readAsByteArray(stream)
 
+          // write the original css file
           val originalOutputPath = outputOriginalBaseDir + "/" + replaceHttp(normalizedPath)
           prepareDir(originalOutputPath)
           writeFile(path = originalOutputPath, content = bytes)
 
-          val pathToLocalRoot = (1 until replaceHttp(normalizedPath).split("/").size).map(_ => "..").mkString("/")
-          val pathToLocalRootWithDomain = pathToLocalRoot + {
-            if (domainOnly(normalizedPath) != domainOnly(currentUrl)) "/" + replaceHttp(normalizedPath).split("/").head
-            else ""
+          // write the path replaced css file
+          {
+            val pathToLocalRoot = (1 until replaceHttp(normalizedPath).split("/").size).map(_ => "..").mkString("/")
+            val pathToLocalRootWithDomain = pathToLocalRoot + {
+              if (domainOnly(normalizedPath) != domainOnly(currentUrl))
+                "/" + replaceHttp(normalizedPath).split("/").head
+              else
+                ""
+            }
+
+            val updatedCss = replaceUrlsInCss(
+              src = new String(bytes, target.charset),
+              pathFromLocalRoot = pathToLocalRootWithDomain,
+              replaceNoDomainOnly = target.replaceNoDomainOnly
+            )
+            val updatedBytes = updatedCss.getBytes(target.charset)
+            val outputPath = outputBaseDir + "/" + replaceHttpToLocal(normalizedPath)
+            prepareDir(outputPath)
+            writeFile(path = outputPath, content = updatedBytes)
           }
 
-          val updatedCss = replaceUrlsInCss(new String(bytes, target.charset), pathToLocalRootWithDomain, target.replaceNoDomainOnly)
-          val updatedBytes = updatedCss.getBytes(target.charset)
-          val outputPath = outputBaseDir + "/" + replaceHttpToLocal(normalizedPath)
-          prepareDir(outputPath)
-          writeFile(path = outputPath, content = updatedBytes)
+          // write the path replaced css file which is placed at __local__
+          // if the css file is on the same domain
+          if (domainOnly(normalizedPath) == domainOnly(currentUrl)) {
+            val pathToLocalRoot = (1 until (replaceHttp(normalizedPath).split("/").size - 1)).map(_ => "..").mkString("/")
+            val pathToLocalRootWithDomain = pathToLocalRoot + {
+              if (domainOnly(normalizedPath) != domainOnly(currentUrl))
+                "/" + replaceHttp(normalizedPath).split("/").head
+              else
+                ""
+            }
+            val updatedCss = replaceUrlsInCss(
+              src = new String(bytes, target.charset),
+              pathFromLocalRoot = pathToLocalRootWithDomain,
+              replaceNoDomainOnly = target.replaceNoDomainOnly
+            )
+            val updatedBytes = updatedCss.getBytes(target.charset)
+            val outputPath = outputBaseDir + "/__local__/" + trimHttp(normalizedPath)
+            prepareDir(outputPath)
+            writeFile(path = outputPath, content = updatedBytes)
+          }
+
           downloadImportedCss(domainOnly(normalizedPath), dirname(normalizedPath), new String(bytes, target.charset))
           downloadUrlInCss(domainOnly(normalizedPath), dirname(normalizedPath), new String(bytes, target.charset))
       }
