@@ -8,7 +8,7 @@ object AppBuild extends Build {
   lazy val mainSettings: Seq[Project.Setting[_]] = Defaults.defaultSettings ++ Seq(
     organization := "com.github.seratch",
     name := "gyotaku",
-    version := "0.1.4",
+    version := "0.1.5",
     scalaVersion := "2.9.1",
     externalResolvers ~= (_.filter(_.name != "Scala-Tools Maven2 Repository")),
     resolvers += "twitter" at "http://maven.twttr.com/",
